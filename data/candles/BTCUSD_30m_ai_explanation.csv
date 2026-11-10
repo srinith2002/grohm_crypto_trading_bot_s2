@@ -1,0 +1,2 @@
+AI_Signal,Market_Regime,Explanation
+BULLISH,TRENDING_UP,Predicted price is above current price. EMA 20 is above EMA 50. Latest candle is classified as normal.

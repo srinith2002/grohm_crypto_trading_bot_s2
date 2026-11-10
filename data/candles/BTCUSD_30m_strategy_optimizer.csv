@@ -1,0 +1,4 @@
+strategy,score_threshold,eligible_setups,simulated_trades,wins,losses,ambiguous,unresolved,win_rate_percent,simulated_pnl,max_drawdown
+Conservative,80,4,2,1,0,0,0,100.0,33.59,0.0
+Moderate,70,13,2,1,0,0,0,100.0,31.55,2.49
+Exploratory,60,13,2,1,0,0,0,100.0,31.55,2.49

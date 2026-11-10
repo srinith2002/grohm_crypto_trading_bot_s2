@@ -1,0 +1,9 @@
+pandas
+numpy
+requests
+streamlit
+plotly
+python-dotenv
+pytest
+scikit-learn
+joblib
