@@ -1,24 +1,13 @@
 
-from genai.config import check_configuration
-from genai.chat_assistant import ask_grohm_ai
+import os
+from google import genai
 
-print("================================")
-print("       GROHM GEMINI TEST")
-print("================================")
+api_key = os.getenv("GEMINI_API_KEY")
 
-print("\n1. Configuration:")
-print(check_configuration())
+if not api_key:
+    raise ValueError("Gemini API key not configured!")
 
-print("\n2. Gemini Response Test:")
+client = genai.Client(api_key=api_key)
 
-try:
-    answer = ask_grohm_ai(
-        "Explain the Flexi Matrix Analyzer in simple words."
-    )
+print("Gemini authentication configured successfully!")
 
-    print("\nGROHM AI:")
-    print(answer)
-
-except Exception as error:
-    print("\nGEMINI ERROR:")
-    print(error)

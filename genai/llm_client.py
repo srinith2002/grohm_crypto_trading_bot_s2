@@ -1,42 +1,74 @@
 
-from genai.gemini_client import generate_response
+import os
+import time
+
+from google import genai
+from google.genai import types
+from genai.config import GEMINI_MODEL
 
 
-SYSTEM_CONTEXT = """
-You are GROHM AI, an assistant for GROHM Crypto Trading Bot S2.
+def generate_response(prompt: str) -> str:
 
-The project includes:
-1. Market Data Agent
-2. Data Validation Agent
-3. Indicator Agent
-4. Candlestick Agent
-5. Flexi Matrix Analyzer
-6. Risk Management Agent
-7. Paper Trading Agent
-8. Trade Monitoring Agent
-9. Performance Analysis Agent
-10. Machine Learning Models
-11. AI Modules
+    if not prompt or not prompt.strip():
+        raise ValueError("Prompt cannot be empty.")
 
-Explain technical concepts in simple language.
-Do not invent project results.
-Do not guarantee profits.
-Never execute trades.
-"""
+    api_key = os.getenv("GEMINI_API_KEY")
 
+    if not api_key:
+        raise RuntimeError(
+            "GEMINI_API_KEY is not configured."
+        )
 
-def ask_grohm_ai(question: str) -> str:
+    client = genai.Client(
+        api_key=api_key,
+        http_options=types.HttpOptions(
+            timeout=30000
+        )
+    )
 
-    if not question or not question.strip():
-        raise ValueError("Please enter a question.")
+    max_attempts = 3
 
-    prompt = f"""
-    {SYSTEM_CONTEXT}
+    try:
+        for attempt in range(max_attempts):
 
-    User Question:
-    {question}
-    """
+            try:
+                response = client.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=prompt
+                )
 
-    return generate_response(prompt)
+                if not response.text:
+                    raise RuntimeError(
+                        "Gemini returned an empty response."
+                    )
+
+                return response.text
+
+            except Exception as error:
+
+                error_message = str(error)
+
+                temporary_error = (
+                    "503" in error_message
+                    or "UNAVAILABLE" in error_message
+                    or "429" in error_message
+                    or "RESOURCE_EXHAUSTED" in error_message
+                )
+
+                if temporary_error and attempt < max_attempts - 1:
+                    time.sleep(2 ** (attempt + 1))
+                    continue
+
+                if temporary_error:
+                    return (
+                        "Gemini is temporarily busy. "
+                        "Please try again later."
+                    )
+
+                return f"Gemini connection error: {error_message}"
+
+    finally:
+        client.close()
+
 
 
